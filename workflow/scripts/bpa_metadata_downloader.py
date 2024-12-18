@@ -2,9 +2,12 @@
 
 import ckanapi
 import os
+import multiprocessing as mp
 
 # Globals
 dp_url = "https://data.bioplatforms.com"
+threads = 8
+num_records = 100  # in prod, set to 0
 
 
 def get_apikey():
@@ -18,8 +21,10 @@ def main():
     apikey = get_apikey()
     remote = ckanapi.RemoteCKAN(dp_url, apikey=apikey)
     all_packages = remote.action.package_list(
-        rows=0, include_datasets=True, include_private=True, apikey=apikey
+        rows=num_records, include_datasets=True, include_private=True, apikey=apikey
     )
+    print(f"Found {len(all_packages)} packages.")
+    raise ValueError()
 
 
 main()
