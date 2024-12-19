@@ -26,7 +26,7 @@ def read_json(json_file):
 
 def write_json(data, file):
     with gzip.open(file, "wb") as f:
-        jsonlines.Writer(f).write_all(data)
+        jsonlines.Writer(f).write(data)
 
 
 def main():
