@@ -15,5 +15,5 @@
 
 ## TODO
 
--[] package
--[] container / conda recipe
+- [ ] package
+- [ ] container / conda recipe
