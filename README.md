@@ -11,3 +11,9 @@
    3. Write this somewhere
 4. Have some logic to go through the output of 3 and match samples in a way
    that they can be used as input for assembly pipelines
+
+
+## TODO
+
+-[] package
+-[] container / conda recipe

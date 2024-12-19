@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 
-import os
-from snakemake.logging import logger
+
+include: "rules/common.smk"
 
 
-def get_apikey():
-    apikey = os.getenv("BPI_APIKEY")
-    if not apikey:
-        logger.warning("Set the BPI_APIKEY environment variable.")
-        return None
-    return apikey
-
-
-configfile: "config/config.yaml"
+rule parse_bpa_json:
+    input:
+        json="resources/datasets.jsonl.gz",
+    output:
+        sample_id_dict="results/sample_id_dict.jsonl.gz",
+        bioplatforms_id_dict="results/bioplatforms_id_dict.jsonl.gz",
+        equivalent_samples="results/equivalent_samples.jsonl.gz",
+    log:
+        "logs/parse_bpa_json.log",
+    script:
+        "scripts/parse_bpa_json.py"
 
 
 rule dump_bpa:
