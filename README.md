@@ -1,5 +1,8 @@
 # atol-merge-bpa-resources-by-sample
 
+**Overview**: starting from a query (e.g. `sample_id`), return a `yaml` file
+that can be passed directly to sanger-tol/genomeassembly.
+
 1. Query the DP to get a list of all packages
 2. Function:
    1. For each package, get the `sample_id` and/or `bioplatforms_sample_id`
