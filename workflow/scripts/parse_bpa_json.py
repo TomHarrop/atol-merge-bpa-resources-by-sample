@@ -2,16 +2,7 @@
 
 import jsonlines
 import gzip
-
-
-def setup_logging(logfile):
-    import logging
-    from snakemake.logging import logger
-
-    file_handler = logging.FileHandler(logfile)
-    logger.logfile_handler = file_handler
-    logger.logger.addHandler(logger.logfile_handler)
-    return logger
+from utils import setup_logging
 
 
 def read_json(json_file):
@@ -32,9 +23,10 @@ def write_json(data, file):
 def main():
     data = read_json(json_file)
 
-    sample_id_dict = {}
-    bioplatforms_sample_id_dict = {}
-    equivalent_samples = []
+    sample_id_dict = {}  # sample_id to package
+    bioplatforms_sample_id_dict = {} # bioplatforms_sample_id to package
+    # list of tuples linking sample_id to bioplatforms_sample_id
+    equivalent_samples = [] 
 
     for i, package in enumerate(data):
         bp_id_exists = False
@@ -64,10 +56,10 @@ if __name__ == "__main__":
     # Globals
     if snakemake:
 
-        logfile = snakemake.log[0]
-        logger = setup_logging(logfile)
+        logger = setup_logging(snakemake.log[0])
 
         json_file = snakemake.input["json"]
+        logger.info(f"Parsing JSON file {json_file}")
         equivalent_samples_file = snakemake.output["equivalent_samples"]
         sample_id_file = snakemake.output["sample_id_dict"]
         bioplatforms_sample_id_file = snakemake.output["bioplatforms_id_dict"]

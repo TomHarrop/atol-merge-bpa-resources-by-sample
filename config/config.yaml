@@ -1,2 +1,7 @@
 ---
 bpa_url: https://data.bioplatforms.com
+containers:
+  ncbi-datasets-pylib:
+    prefix: docker
+    url: quay.io/biocontainers/ncbi-datasets-pylib
+    tag: 16.6.1--pyhdfd78af_0

@@ -13,6 +13,8 @@ rule parse_bpa_json:
         equivalent_samples="results/equivalent_samples.jsonl.gz",
     log:
         "logs/parse_bpa_json.log",
+    container:
+        get_container("ncbi-datasets-pylib")
     script:
         "scripts/parse_bpa_json.py"
 
@@ -25,6 +27,8 @@ rule dump_bpa:
         "resources/datasets.jsonl.gz",
     log:
         "logs/dump_bpa.log",
+    # todo:
+    # container: get_container("ncbi-datasets-pylib")
     shell:
         "ckanapi search datasets "
         " -a {params.apikey} "
