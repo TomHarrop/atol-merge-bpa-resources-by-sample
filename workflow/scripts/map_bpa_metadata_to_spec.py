@@ -23,7 +23,7 @@ def write_json(data, file):
 
 
 def pick_id(package):
-    for field in sample_name_fields:
+    for field in package_identifier_fields:
         if field in package:
             return package[field]
 
@@ -35,20 +35,30 @@ def get_bioplatforms_project(package):
         return None
 
 
-def get_data_context(package, context_keys, accepted_data_contexts):
+def get_data_context(
+    package, context_keys, accepted_data_contexts, assembly_value="atol_assembly"
+):
+    """
+    context_keys is an ordered list. If package has any context_keys whose
+    value is in accepted_data_contexts, the function returns assembly_value.
+    Otherwise, it returns the value of the first context_key that was present
+    in the package. If no context_keys are present, it returns None.
+    """
     my_context = None
+    first_context = None
     for key in context_keys:
         if key in package:
             my_context = package[key]
-            break
+            if my_context in accepted_data_contexts:
+                return assembly_value
+            if not first_context:
+                first_context = my_context
 
-    if my_context in accepted_data_contexts:
-        return "atol_assembly"
-    elif "genome_data" in package:
+    if "genome_data" in package:
         if package["genome_data"] == "yes":
-            return "atol_assembly"
+            return assembly_value
     else:
-        return my_context
+        return first_context
 
 
 def read_data_mapping_config(data_mapping_config_file):
@@ -65,21 +75,18 @@ def main():
 
     counters = {
         "bioplatforms_project": Counter(),
+        "context_key_usage": Counter(),
         "data_context": Counter(),
-        "project_context": Counter(),
+        "project_and_context": Counter(),
+        "package_identifier_usage": Counter(),
     }
 
     for package in data:
-        id = pick_id(package)
+        id = package["id"]
 
-        # TODO: count potential record identifiers
-
-        try:
-            package["dataset_id"]
-        except KeyError as e:
-            print(id)
-            raise e
-
+        for field in context_keys:
+            if field in package:
+                counters["context_key_usage"].update([field])
 
         bioplatforms_project = get_bioplatforms_project(package)
         counters["bioplatforms_project"].update([bioplatforms_project])
@@ -87,16 +94,16 @@ def main():
         data_context = get_data_context(package, context_keys, accepted_data_context)
         counters["data_context"].update([data_context])
 
-        counters["project_context"].update([f"{bioplatforms_project}_{data_context}"])
+        counters["project_and_context"].update(
+            [f"{bioplatforms_project}_{data_context}"]
+        )
 
-        if (
-            bioplatforms_project in accepted_bioplatforms_project
-            and data_context == "atol_assembly"
-        ):
+        if bioplatforms_project in accepted_bioplatforms_project and not data_context:
             print(id)
             quit(1)
 
-    print(counters)
+    print(counters["data_context"])
+    print(counters["context_key_usage"])
     quit(1)
 
 
