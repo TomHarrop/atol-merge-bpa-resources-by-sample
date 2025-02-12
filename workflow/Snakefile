@@ -4,6 +4,21 @@
 include: "rules/common.smk"
 
 
+rule map_bpa_metadata_to_spec:
+    input:
+        json="resources/datasets.jsonl.gz",
+        data_mapping_config="config/data_mapping_config.json",
+    output:
+        metadata="results/atol_portal_metadata.csv",
+        rejected_samples="results/rejected_samples.csv",
+    log:
+        "logs/map_bpa_metadata_to_spec.log",
+    container:
+        get_container("ncbi-datasets-pylib")
+    script:
+        "scripts/map_bpa_metadata_to_spec.py"
+
+
 rule parse_bpa_json:
     input:
         json="resources/datasets.jsonl.gz",

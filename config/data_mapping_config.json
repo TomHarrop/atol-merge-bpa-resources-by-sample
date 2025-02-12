@@ -1,0 +1,34 @@
+{
+    "sample_name_fields": [
+        "bioplatforms_sample_id",
+        "sample_id",
+        "bpa_sample_id",
+        "bpa_sample_ids"
+    ],
+    "accepted_bioplatforms_project": [
+        "Threatened Species Initiative",
+        "Plant Pathogen Initiative",
+        "Threatened Species Initiative (TSI)",
+        "Oz Mammals Genomics Initiative",
+        "Australian Grasslands Initiative (AG)",
+        "Australian Avian Genomics Initiative (AVIAN)"
+    ],
+    "context_keys": [
+        "data_context",
+        "project_aim",
+        "ausarg_project",
+        "genome_data"
+    ],
+    "accepted_data_context": [
+        "Reference genomes",
+        "Reference genome",
+        "reference genome",
+        "Genomics",
+        "Reference Genome",
+        "Genome resequencing",
+        "Reference genomes",
+        "Reference genome (HiC)",
+        "Pangenome",
+        "Reference genome for Rhodomyrtus psidioides"
+    ]
+}

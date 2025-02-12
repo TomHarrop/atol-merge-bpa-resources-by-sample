@@ -23,3 +23,5 @@ def get_apikey():
 
 
 configfile: "config/config.yaml"
+globals().update(config)
+
