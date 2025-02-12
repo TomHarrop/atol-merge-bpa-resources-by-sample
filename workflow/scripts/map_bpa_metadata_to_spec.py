@@ -44,6 +44,9 @@ def get_data_context(package, context_keys, accepted_data_contexts):
 
     if my_context in accepted_data_contexts:
         return "atol_assembly"
+    elif "genome_data" in package:
+        if package["genome_data"] == "yes":
+            return "atol_assembly"
     else:
         return my_context
 
@@ -63,12 +66,20 @@ def main():
     counters = {
         "bioplatforms_project": Counter(),
         "data_context": Counter(),
-        "genome_data": Counter(),
         "project_context": Counter(),
     }
 
     for package in data:
         id = pick_id(package)
+
+        # TODO: count potential record identifiers
+
+        try:
+            package["dataset_id"]
+        except KeyError as e:
+            print(id)
+            raise e
+
 
         bioplatforms_project = get_bioplatforms_project(package)
         counters["bioplatforms_project"].update([bioplatforms_project])
@@ -76,18 +87,16 @@ def main():
         data_context = get_data_context(package, context_keys, accepted_data_context)
         counters["data_context"].update([data_context])
 
-        if "genome_data" in package:
-            if package["genome_data"] == "yes":
-                print(id)
-                print(bioplatforms_project)
-                print(data_context)
-                quit(1)
-            counters["genome_data"].update([package["genome_data"]])
-
         counters["project_context"].update([f"{bioplatforms_project}_{data_context}"])
 
-    print(counters["genome_data"])
+        if (
+            bioplatforms_project in accepted_bioplatforms_project
+            and data_context == "atol_assembly"
+        ):
+            print(id)
+            quit(1)
 
+    print(counters)
     quit(1)
 
 

@@ -1,5 +1,7 @@
 {
     "sample_name_fields": [
+        "dataset_id",
+        "bioplatforms_dataset_id",
         "bioplatforms_sample_id",
         "sample_id",
         "bpa_sample_id",
@@ -17,7 +19,8 @@
         "data_context",
         "project_aim",
         "ausarg_project",
-        "genome_data"
+        "genome_data",
+        "analysis_aim"
     ],
     "accepted_data_context": [
         "Reference genomes",
