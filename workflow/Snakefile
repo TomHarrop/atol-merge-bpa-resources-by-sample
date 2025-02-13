@@ -10,10 +10,11 @@ include: "rules/common.smk"
 rule filter_datasets:
     input:
         json="resources/datasets.jsonl.gz",
-        data_mapping_config="config/data_mapping_config.json",
+        data_mapping_config="config/dataset_filtering_config.json",
     output:
         filtered_datasets="results/filtered_datasets.jsonl.gz",
         decision_log="results/decision_log.csv",
+        counters="results/key_counts.jsonl.gz",
     log:
         "logs/filter_datasets.log",
     container:

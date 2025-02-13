@@ -62,8 +62,8 @@ def read_data_mapping_config(data_mapping_config_file):
 
 
 def main():
-    data_mapping_config = read_data_mapping_config(data_mapping_config_file)
-    globals().update(data_mapping_config)
+    filtering_config = read_data_mapping_config(filtering_config_file)
+    globals().update(filtering_config)
 
     logger.info(f"Parsing JSON file {json_file}")
     data = read_json(json_file)
@@ -81,10 +81,11 @@ def main():
     packages_to_keep = {}
     id_set = set()
     decision_log = [
-        "id,bioplatforms_project,keep_project,data_context,keep_context,platform,keep_platform"
+        "id,keep_dataset,bioplatforms_project,keep_project,data_context,keep_context,platform,keep_platform"
     ]
 
     for package in data:
+        keep_dataset = False
         id = package["id"]
 
         # There shouldn't be any duplicate IDs
@@ -126,13 +127,16 @@ def main():
         )
         counters["platform"].update([platform])
 
-        decision_log.append(
-            f"{id},{bioplatforms_project},{keep_project},{data_context},{keep_context},{platform},{keep_platform}"
-        )
-        if keep_project and keep_context and keep_platform:
+        if all([keep_project, keep_context, keep_platform]):
             packages_to_keep[id] = package
+            keep_dataset = True
+
+        decision_log.append(
+            f"{id},{keep_dataset},{bioplatforms_project},{keep_project},{data_context},{keep_context},{platform},{keep_platform}"
+        )
 
     write_json(packages_to_keep, filtered_datasets_file)
+    write_json(counters, counters_file)
     with open(decision_log_file, "w") as f:
         f.write("\n".join(decision_log))
 
@@ -144,9 +148,10 @@ if __name__ == "__main__":
         logger = setup_logging(snakemake.log[0])
 
         json_file = snakemake.input["json"]
-        data_mapping_config_file = snakemake.input["data_mapping_config"]
+        filtering_config_file = snakemake.input["data_mapping_config"]
         filtered_datasets_file = snakemake.output["filtered_datasets"]
         decision_log_file = snakemake.output["decision_log"]
+        counters_file = snakemake.output["counters"]
 
     except NameError as e:
         import tempfile
@@ -158,8 +163,9 @@ if __name__ == "__main__":
         logger.warning("No Snakemake object. Running script as standalone.")
 
         json_file = "resources/datasets.jsonl.gz"
-        data_mapping_config_file = "config/data_mapping_config.json"
+        filtering_config_file = "config/dataset_filtering_config.json"
         filtered_datsets_file = "test/filtered_datasets.jsonl.gz"
         decision_log_file = "test/decision_log.csv"
+        counters_file = "test/key_counts.jsonl.gz"
 
     main()
