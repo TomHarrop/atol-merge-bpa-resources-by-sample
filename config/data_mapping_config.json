@@ -5,14 +5,15 @@
         "Threatened Species Initiative (TSI)",
         "Oz Mammals Genomics Initiative",
         "Australian Grasslands Initiative (AG)",
-        "Australian Avian Genomics Initiative (AVIAN)"
+        "Australian Avian Genomics Initiative (AVIAN)",
+        "Australian Functional Fungi Initiative"
     ],
     "context_keys": [
         "project_aim",
         "data_context",
         "ausarg_project",
-        "genome_data",
-        "analysis_aim"
+        "analysis_aim",
+        "genome_data"
     ],
     "accepted_data_context": [
         "Genome resequencing",
@@ -25,5 +26,47 @@
         "Reference Genome",
         "Reference genomes",
         "Reference genomes"
+    ],
+    "platform_keys": [
+        "type",
+        "sequence_data_type",
+        "data_type",
+        "description",
+        "library_type",
+        "sequencing_platform"
+    ],
+    "accepted_platform": [
+        "ausarg-hi-c",
+        "ausarg-illumina-fastq",
+        "ausarg-ont-promethion",
+        "ausarg-pacbio-hifi",
+        "avian-pacbio-hifi",
+        "fungi-illumina-shortread",
+        "fungi-ont-promethion",
+        "gap-genomics-10x",
+        "gap-hi-c",
+        "gap-illumina-shortread",
+        "gap-ont-minion",
+        "gap-ont-promethion",
+        "gap-pacbio-hifi",
+        "grasslands-hi-c",
+        "grasslands-illumina-shortread",
+        "grasslands-pacbio-hifi",
+        "omg-10x-processed-illumina",
+        "omg-10x-raw-illumina",
+        "omg-10x-raw",
+        "omg-genomics-hiseq",
+        "omg-novaseq-whole-genome",
+        "omg-novaseq",
+        "omg-ont-promethion",
+        "omg-pacbio",
+        "pp-illumina-shortread",
+        "pp-ont-promethion",
+        "pp-pacbio-hifi",
+        "tsi-genome-assembly",
+        "tsi-hi-c",
+        "tsi-illumina-fastq",
+        "tsi-illumina-shortread",
+        "tsi-pacbio-hifi"
     ]
 }

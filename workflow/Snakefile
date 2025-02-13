@@ -4,19 +4,22 @@
 include: "rules/common.smk"
 
 
-rule map_bpa_metadata_to_spec:
+# So far I have only implemented filtering the data on project, context and
+# datatype. Haven't decided if metadata mapping should be a second run through
+# the filtered samples.
+rule filter_datasets:
     input:
         json="resources/datasets.jsonl.gz",
         data_mapping_config="config/data_mapping_config.json",
     output:
-        metadata="results/atol_portal_metadata.csv",
-        rejected_samples="results/rejected_samples.csv",
+        filtered_datasets="results/filtered_datasets.jsonl.gz",
+        decision_log="results/decision_log.csv",
     log:
-        "logs/map_bpa_metadata_to_spec.log",
+        "logs/filter_datasets.log",
     container:
-        get_container("ncbi-datasets-pylib")
+        get_container("ncbi-datasets-pylib")  # has jsonlines
     script:
-        "scripts/map_bpa_metadata_to_spec.py"
+        "scripts/filter_datasets.py"
 
 
 rule parse_bpa_json:
@@ -29,7 +32,7 @@ rule parse_bpa_json:
     log:
         "logs/parse_bpa_json.log",
     container:
-        get_container("ncbi-datasets-pylib")
+        get_container("ncbi-datasets-pylib")  # has jsonlines
     script:
         "scripts/parse_bpa_json.py"
 
