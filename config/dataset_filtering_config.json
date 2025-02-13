@@ -8,6 +8,17 @@
         "Australian Avian Genomics Initiative (AVIAN)",
         "Australian Functional Fungi Initiative"
     ],
+    "accepted_organization_names": [
+        "bpa-plants",
+        "bpa-omg",
+        "ausarg",
+        "plant-pathogen",
+        "threatened-species",
+        "fungi",
+        "grasslands",
+        "bpa-wheat-pathogens-genomes",
+        "aus-avian"
+    ],
     "context_keys": [
         "project_aim",
         "data_context",

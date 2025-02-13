@@ -76,12 +76,13 @@ def main():
         "platform": Counter(),
         "project_and_context": Counter(),
         "package_identifier_usage": Counter(),
+        "organization_name": Counter(),
     }
 
     packages_to_keep = {}
     id_set = set()
     decision_log = [
-        "id,keep_dataset,bioplatforms_project,keep_project,data_context,keep_context,platform,keep_platform"
+        "id,keep_dataset,organization_name,keep_organization,bioplatforms_project,keep_project,data_context,keep_context,platform,keep_platform"
     ]
 
     for package in data:
@@ -106,6 +107,11 @@ def main():
         )
         counters["bioplatforms_project"].update([bioplatforms_project])
 
+        organization_name, keep_organization = get_data_context(
+            package["organization"], ["name"], accepted_organization_names
+        )
+        counters["organization_name"].update([organization_name])
+
         data_context, keep_context = get_data_context(
             package, context_keys, accepted_data_context
         )
@@ -127,12 +133,12 @@ def main():
         )
         counters["platform"].update([platform])
 
-        if all([keep_project, keep_context, keep_platform]):
+        if all([keep_organization, keep_context, keep_platform]):
             packages_to_keep[id] = package
             keep_dataset = True
 
         decision_log.append(
-            f"{id},{keep_dataset},{bioplatforms_project},{keep_project},{data_context},{keep_context},{platform},{keep_platform}"
+            f"{id},{keep_dataset},{organization_name},{keep_organization},{bioplatforms_project},{keep_project},{data_context},{keep_context},{platform},{keep_platform}"
         )
 
     write_json(packages_to_keep, filtered_datasets_file)
