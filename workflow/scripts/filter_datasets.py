@@ -7,6 +7,29 @@ import json
 import jsonlines
 
 
+class ConfigSection:
+    def __init__(self, field_names, accepted_values):
+        self.field_names = field_names
+        self.accepted_values = accepted_values
+
+
+class Config:
+    def __init__(self, config_file):
+        with open(config_file, "r") as file:
+            config_data = json.loads(file.read())
+        for key, value in config_data.items():
+            setattr(
+                self, key, ConfigSection(value["field_names"], value["accepted_values"])
+            )
+
+    def __iter__(self):
+        for attr, value in self.__dict__.items():
+            yield attr, value
+
+    def get_csv_header(self):
+        return ",".join(f"{x},keep_{x}" for x, y in self)
+
+
 def read_json(json_file):
     """
     Each line is a Package.
@@ -22,68 +45,49 @@ def write_json(data, file):
         jsonlines.Writer(f).write(data)
 
 
-# TODO: this has been generalised to recurse through key sets, generalise the
-# name and text.
-def get_data_context(package, context_keys, accepted_data_contexts):
+def choose_value(package, keys_to_check, accepted_values):
     """
-    Returns a tuple of (context_value, keep_package).
+    Returns a tuple of (chosen_value, accept_value).
 
-    context_keys is an ordered list.
+    Package is a dict parsed from json.
 
-    If package has any context_keys whose value is in accepted_data_contexts,
-    the value of that context_key is returned and keep_package is True.
+    keys_to_check is an ordered list.
 
-    If the package has no context_keys whose value is in
-    accepted_data_contexts, but it does have a key called "genome_data" with
-    value "yes", keep_package is True.
+    If package has any keys_to_check whose value is in accepted_values, the
+    value of that keys_to_check is returned and accept_value is True.
 
-    If the package has no context_keys whose value is in
-    accepted_data_contexts, the value of the first context_key is returned.
+    If the package has no keys_to_check whose value is in accepted_values, the
+    value of the first keys_to_check is returned.
 
-    If the package has context_keys at all, the value is  None.
+    If the package has keys_to_check at all, the value is None.
 
     """
-    my_context = None
-    first_context = None
-    for key in context_keys:
+    my_value = None
+    first_value = None
+    for key in keys_to_check:
         if key in package:
-            my_context = package[key]
-            if my_context in accepted_data_contexts:
-                return (my_context, True)
-            if not first_context:
-                first_context = my_context
+            my_value = package[key]
+            if my_value in accepted_values:
+                return (my_value, True)
+            if not first_value:
+                first_value = my_value
 
-    return (first_context, False)
-
-
-def read_data_mapping_config(data_mapping_config_file):
-    with open(data_mapping_config_file, "rb") as file:
-        return json.loads(file.read())
+    return (first_value, False)
 
 
 def main():
-    filtering_config = read_data_mapping_config(filtering_config_file)
-    globals().update(filtering_config)
+    config = Config(filtering_config_file)
 
     logger.info(f"Parsing JSON file {json_file}")
     data = read_json(json_file)
 
-    counters = {
-        "bioplatforms_project": Counter(),
-        "context_key_usage": Counter(),
-        "data_context": Counter(),
-        "platform_key_usage": Counter(),
-        "platform": Counter(),
-        "project_and_context": Counter(),
-        "package_identifier_usage": Counter(),
-        "organization_name": Counter(),
-    }
+    # track key usage
+    key_usage_counters = {x: Counter() for x, y in config}
+    value_counters = {x: Counter() for x, y in config}
 
     packages_to_keep = {}
     id_set = set()
-    decision_log = [
-        "id,keep_dataset,organization_name,keep_organization,bioplatforms_project,keep_project,data_context,keep_context,platform,keep_platform"
-    ]
+    decision_log = [f"id,{config.get_csv_header()}"]
 
     for package in data:
         keep_dataset = False
@@ -94,41 +98,35 @@ def main():
             raise ValueError(f"Duplicate ID: {id}")
         id_set.add(id)
 
-        for field in context_keys:
-            if field in package:
-                counters["context_key_usage"].update([field])
+        # check which of the allowed_fields have been used in this package
+        for metadata_field, config_section in config:
+            for field in config_section.field_names:
+                if field in package:
+                    key_usage_counters[metadata_field].update([field])
 
-        for field in platform_keys:
-            if field in package:
-                counters["platform_key_usage"].update([field])
+            value, keep = choose_value(
+                package, config_section.field_names, config_section.accepted_values
+            )
 
-        bioplatforms_project, keep_project = get_data_context(
-            package, ["bioplatforms_project"], accepted_bioplatforms_project
-        )
-        counters["bioplatforms_project"].update([bioplatforms_project])
+            # Need a manual override for this one weird key. If the package has no
+            # context_keys whose value is in accepted_data_context, but it does
+            # have a key called "genome_data" with value "yes", keep_package is
+            # True.
+            if (
+                metadata_field == "data_context"
+                and "genome_data" in package
+                and not keep
+            ):
+                if package["genome_data"] == "yes":
+                    keep_context = True
 
-        organization_name, keep_organization = get_data_context(
-            package["organization"], ["name"], accepted_organization_names
-        )
-        counters["organization_name"].update([organization_name])
-
-        data_context, keep_context = get_data_context(
-            package, context_keys, accepted_data_context
-        )
-        # need a manual override for this one weird key
-        if "genome_data" in package:
-            if package["genome_data"] == "yes":
-                keep_context = True
+            print(value)
+            print(keep)
+            quit(1)
 
         counters["data_context"].update([data_context])
 
-        counters["project_and_context"].update(
-            [f"{bioplatforms_project}_{data_context}"]
-        )
-
-        # hack for now - it might work with the existing get_data_context
-        # function
-        platform, keep_platform = get_data_context(
+        platform, keep_platform = choose_value(
             package, platform_keys, accepted_platform
         )
         counters["platform"].update([platform])
@@ -138,7 +136,7 @@ def main():
             keep_dataset = True
 
         decision_log.append(
-            f"{id},{keep_dataset},{organization_name},{keep_organization},{bioplatforms_project},{keep_project},{data_context},{keep_context},{platform},{keep_platform}"
+            f"{id},{keep_dataset},{organization_name},{keep_organization},{data_context},{keep_context},{platform},{keep_platform}"
         )
 
     write_json(packages_to_keep, filtered_datasets_file)
