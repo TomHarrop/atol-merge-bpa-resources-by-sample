@@ -1,0 +1,52 @@
+{
+    "scientific_name": {
+        "field_names": [
+            "scientific_name",
+            "species_name",
+            "genus&&species",
+            "species_name",
+            "taxon_or_organism"
+        ]
+    },
+    "infraspecific_epithet": {
+        "field_names": [
+            "sub_species",
+            "subspecies",
+            "species_complex",
+            "subspecies_or_variant",
+            "official_variety_name",
+            "variety",
+            "variety_commercial",
+            "isolate",
+            "strain_or_isolate",
+            "strain_description",
+            "serovar"
+        ]
+    },
+    "family": {
+        "field_names": [
+            "family"
+        ]
+    },
+    "order_or_group": {
+        "field_names": [
+            "order",
+            "taxonomic_group"
+        ]
+    },
+    "authority": {
+        "field_names": [
+            "scientific_name_authorship"
+        ]
+    },
+    "taxon_id": {
+        "field_names": [
+            "taxon_id"
+        ]
+    },
+    "common_name": {
+        "field_names": [
+            "common_name"
+        ]
+    }
+}
