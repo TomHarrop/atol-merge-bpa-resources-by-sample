@@ -27,52 +27,6 @@ class Config:
         for attr, value in self.__dict__.items():
             yield attr, value
 
-    def get_csv_header(self):
-        return ",".join(f"{x},keep_{x}" for x, y in self)
-
-
-def read_json(json_file):
-    """
-    Each line is a Package.
-    """
-    with gzip.open(json_file, "rb") as f:
-        data = jsonlines.Reader(f)
-        for line in data:
-            yield line
-
-
-def write_json(data, file):
-    with gzip.open(file, "wb") as f:
-        jsonlines.Writer(f).write(data)
-
-
-def get_nested_value(d, key):
-    """
-    Retrieve the value from a nested dictionary using a dot-notated key.
-    """
-    keys = key.split(".")
-    for k in keys:
-        if isinstance(d, dict) and k in d:
-            d = d[k]
-        else:
-            return None
-    return d
-
-
-def write_decision_log_to_csv(decision_log, file_path):
-    """
-    Write the decision log to a CSV file.
-    """
-    with open(file_path, mode="w", newline="") as file:
-        writer = csv.writer(file)
-        # Write the header
-        header = ["id"] + list(next(iter(decision_log.values())).keys())
-        writer.writerow(header)
-        # Write the rows
-        for id, decisions in decision_log.items():
-            row = [id] + list(decisions.values())
-            writer.writerow(row)
-
 
 def choose_value(package, keys_to_check, accepted_values):
     """
@@ -93,15 +47,60 @@ def choose_value(package, keys_to_check, accepted_values):
     """
     values = {key: get_nested_value(package, key) for key in keys_to_check}
     first_value = None
+    first_key = None
 
     for key, value in values.items():
         if value is not None:
             if value in accepted_values:
-                return (value, True)
+                return (value, key, True)
             if first_value is None:
                 first_value = value
+                first_key = key
 
-    return (first_value, False)
+    return (first_value, first_key, False)
+
+
+def get_nested_value(d, key):
+    """
+    Retrieve the value from a nested dictionary using a dot-notated key.
+    """
+    keys = key.split(".")
+    for k in keys:
+        if isinstance(d, dict) and k in d:
+            d = d[k]
+        else:
+            return None
+    return d
+
+
+def read_json(json_file):
+    """
+    Each line is a Package.
+    """
+    with gzip.open(json_file, "rb") as f:
+        data = jsonlines.Reader(f)
+        for line in data:
+            yield line
+
+
+def write_decision_log_to_csv(decision_log, file_path):
+    """
+    Write the decision log to a CSV file.
+    """
+    with open(file_path, mode="w", newline="") as file:
+        writer = csv.writer(file)
+        # Write the header
+        header = ["id"] + list(next(iter(decision_log.values())).keys())
+        writer.writerow(header)
+        # Write the rows
+        for id, decisions in decision_log.items():
+            row = [id] + list(decisions.values())
+            writer.writerow(row)
+
+
+def write_json(data, file):
+    with gzip.open(file, "wb") as f:
+        jsonlines.Writer(f).write(data)
 
 
 def main():
@@ -112,7 +111,8 @@ def main():
 
     # track key usage
     key_usage_counters = {x: Counter() for x, y in config}
-    value_counters = {x: Counter() for x, y in config}
+    parsed_value_counters = {x: Counter() for x, y in config}
+    parsed_key_counters = {x: Counter() for x, y in config}
 
     decision_log = {}
     packages_to_keep = {}
@@ -120,7 +120,7 @@ def main():
 
     for package in data:
         id = package["id"]
-        dataset_decisions = {}
+        package_decisions = {}
 
         # There shouldn't be any duplicate IDs
         if id in id_set:
@@ -132,10 +132,9 @@ def main():
                 if get_nested_value(package, field) is not None:
                     key_usage_counters[metadata_field].update([field])
 
-            value, keep = choose_value(
+            value, key, keep = choose_value(
                 package, config_section.field_names, config_section.accepted_values
             )
-            value_counters[metadata_field].update([value])
 
             # Need a manual override for this one weird key. If the package has
             # no context_keys whose value is in accepted_data_context, but it
@@ -147,24 +146,28 @@ def main():
                 and not keep
             ):
                 if package["genome_data"] == "yes":
-                    keep = True
+                    value, key, keep = ("yes", "genome_data", True)
+
+            parsed_value_counters[metadata_field].update([value])
+            parsed_key_counters[metadata_field].update([key])
 
             # record the decision for this metadata_field
             decision_key = f"{metadata_field}_accepted"
-            dataset_decisions[decision_key] = keep
-            dataset_decisions[metadata_field] = value
+            package_decisions[decision_key] = keep
+            package_decisions[metadata_field] = value
 
         # summarize the decisions for this package
-        dataset_decisions["dataset_accepted"] = all(dataset_decisions.values())
-        decision_log[id] = dataset_decisions
+        package_decisions["package_accepted"] = all(package_decisions.values())
+        decision_log[id] = package_decisions
 
         # keep the package if all metadata_fields are accepted
-        if dataset_decisions["dataset_accepted"]:
+        if package_decisions["package_accepted"]:
             packages_to_keep[id] = package
 
     write_json(packages_to_keep, filtered_datasets_file)
     write_json(key_usage_counters, key_usage_counts_file)
-    write_json(value_counters, value_counts_file)
+    write_json(parsed_value_counters, parsed_value_counts_file)
+    write_json(parsed_key_counters, parsed_key_counts_file)
     write_decision_log_to_csv(decision_log, decision_log_file)
 
 
@@ -179,7 +182,8 @@ if __name__ == "__main__":
         filtered_datasets_file = snakemake.output["filtered_datasets"]
         decision_log_file = snakemake.output["decision_log"]
         key_usage_counts_file = snakemake.output["key_usage_counts"]
-        value_counts_file = snakemake.output["value_counts"]
+        parsed_value_counts_file = snakemake.output["parsed_value_counts"]
+        parsed_key_counts_file = snakemake.output["parsed_key_counts"]
 
     except NameError as e:
         import tempfile
@@ -195,6 +199,7 @@ if __name__ == "__main__":
         filtered_datsets_file = "test/filtered_datasets.jsonl.gz"
         decision_log_file = "test/decision_log.csv"
         key_usage_counts_file = "test/key_usage_counts.jsonl.gz"
-        value_counts_file = "test/value_counts.jsonl.gz"
+        parsed_value_counts_file = "test/parsed_value_counts.jsonl.gz"
+        parsed_key_counts_file = "test/parsed_key_counts.jsonl.gz"
 
     main()

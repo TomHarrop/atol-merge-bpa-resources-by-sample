@@ -4,15 +4,16 @@
             "organization.name"
         ],
         "accepted_values": [
-            "bpa-plants",
-            "bpa-omg",
+            "aus-avian",
             "ausarg",
-            "plant-pathogen",
-            "threatened-species",
+            "bpa-omg",
+            "bpa-plants",
+            "bpa-wheat-pathogens-genomes",
+            "cipps",
             "fungi",
             "grasslands",
-            "bpa-wheat-pathogens-genomes",
-            "aus-avian"
+            "plant-pathogen",
+            "threatened-species"
         ]
     },
     "data_context": {
@@ -32,7 +33,6 @@
             "reference genome",
             "Reference genome",
             "Reference Genome",
-            "Reference genomes",
             "Reference genomes"
         ]
     },
@@ -51,6 +51,7 @@
             "ausarg-ont-promethion",
             "ausarg-pacbio-hifi",
             "avian-pacbio-hifi",
+            "cipps-pacbio-hifi",
             "fungi-illumina-shortread",
             "fungi-ont-promethion",
             "gap-genomics-10x",

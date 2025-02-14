@@ -14,8 +14,9 @@ rule filter_datasets:
     output:
         filtered_datasets="results/filtered_datasets.jsonl.gz",
         decision_log="results/decision_log.csv",
-        key_usage_counts="results/key_usage_counts.jsonl.gz",
-        value_counts="results/value_counts.jsonl.gz",
+        key_usage_counts="results/key_usage_counts.jsonl.gz",  # raw number of packages using each key
+        parsed_value_counts="results/parsed_value_counts.jsonl.gz",  # number of times each value was parsed
+        parsed_key_counts="results/parsed_key_counts.jsonl.gz",  # number of times each key was used to parse a value
     log:
         "logs/filter_datasets.log",
     container:
