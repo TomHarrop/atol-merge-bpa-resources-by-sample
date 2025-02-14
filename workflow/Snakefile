@@ -14,7 +14,8 @@ rule filter_datasets:
     output:
         filtered_datasets="results/filtered_datasets.jsonl.gz",
         decision_log="results/decision_log.csv",
-        counters="results/key_counts.jsonl.gz",
+        key_usage_counts="results/key_usage_counts.jsonl.gz",
+        value_counts="results/value_counts.jsonl.gz",
     log:
         "logs/filter_datasets.log",
     container:

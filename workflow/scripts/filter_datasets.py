@@ -5,6 +5,7 @@ from utils import setup_logging
 import gzip
 import json
 import jsonlines
+import csv
 
 
 class ConfigSection:
@@ -45,6 +46,34 @@ def write_json(data, file):
         jsonlines.Writer(f).write(data)
 
 
+def get_nested_value(d, key):
+    """
+    Retrieve the value from a nested dictionary using a dot-notated key.
+    """
+    keys = key.split(".")
+    for k in keys:
+        if isinstance(d, dict) and k in d:
+            d = d[k]
+        else:
+            return None
+    return d
+
+
+def write_decision_log_to_csv(decision_log, file_path):
+    """
+    Write the decision log to a CSV file.
+    """
+    with open(file_path, mode="w", newline="") as file:
+        writer = csv.writer(file)
+        # Write the header
+        header = ["id"] + list(next(iter(decision_log.values())).keys())
+        writer.writerow(header)
+        # Write the rows
+        for id, decisions in decision_log.items():
+            row = [id] + list(decisions.values())
+            writer.writerow(row)
+
+
 def choose_value(package, keys_to_check, accepted_values):
     """
     Returns a tuple of (chosen_value, accept_value).
@@ -62,15 +91,15 @@ def choose_value(package, keys_to_check, accepted_values):
     If the package has keys_to_check at all, the value is None.
 
     """
-    my_value = None
+    values = {key: get_nested_value(package, key) for key in keys_to_check}
     first_value = None
-    for key in keys_to_check:
-        if key in package:
-            my_value = package[key]
-            if my_value in accepted_values:
-                return (my_value, True)
-            if not first_value:
-                first_value = my_value
+
+    for key, value in values.items():
+        if value is not None:
+            if value in accepted_values:
+                return (value, True)
+            if first_value is None:
+                first_value = value
 
     return (first_value, False)
 
@@ -85,64 +114,58 @@ def main():
     key_usage_counters = {x: Counter() for x, y in config}
     value_counters = {x: Counter() for x, y in config}
 
+    decision_log = {}
     packages_to_keep = {}
     id_set = set()
-    decision_log = [f"id,{config.get_csv_header()}"]
 
     for package in data:
-        keep_dataset = False
         id = package["id"]
+        dataset_decisions = {}
 
         # There shouldn't be any duplicate IDs
         if id in id_set:
             raise ValueError(f"Duplicate ID: {id}")
         id_set.add(id)
 
-        # check which of the allowed_fields have been used in this package
         for metadata_field, config_section in config:
             for field in config_section.field_names:
-                if field in package:
+                if get_nested_value(package, field) is not None:
                     key_usage_counters[metadata_field].update([field])
 
             value, keep = choose_value(
                 package, config_section.field_names, config_section.accepted_values
             )
+            value_counters[metadata_field].update([value])
 
-            # Need a manual override for this one weird key. If the package has no
-            # context_keys whose value is in accepted_data_context, but it does
-            # have a key called "genome_data" with value "yes", keep_package is
-            # True.
+            # Need a manual override for this one weird key. If the package has
+            # no context_keys whose value is in accepted_data_context, but it
+            # does have a key called "genome_data" with value "yes",
+            # keep_package is True.
             if (
                 metadata_field == "data_context"
                 and "genome_data" in package
                 and not keep
             ):
                 if package["genome_data"] == "yes":
-                    keep_context = True
+                    keep = True
 
-            print(value)
-            print(keep)
-            quit(1)
+            # record the decision for this metadata_field
+            decision_key = f"{metadata_field}_accepted"
+            dataset_decisions[decision_key] = keep
+            dataset_decisions[metadata_field] = value
 
-        counters["data_context"].update([data_context])
+        # summarize the decisions for this package
+        dataset_decisions["dataset_accepted"] = all(dataset_decisions.values())
+        decision_log[id] = dataset_decisions
 
-        platform, keep_platform = choose_value(
-            package, platform_keys, accepted_platform
-        )
-        counters["platform"].update([platform])
-
-        if all([keep_organization, keep_context, keep_platform]):
+        # keep the package if all metadata_fields are accepted
+        if dataset_decisions["dataset_accepted"]:
             packages_to_keep[id] = package
-            keep_dataset = True
-
-        decision_log.append(
-            f"{id},{keep_dataset},{organization_name},{keep_organization},{data_context},{keep_context},{platform},{keep_platform}"
-        )
 
     write_json(packages_to_keep, filtered_datasets_file)
-    write_json(counters, counters_file)
-    with open(decision_log_file, "w") as f:
-        f.write("\n".join(decision_log))
+    write_json(key_usage_counters, key_usage_counts_file)
+    write_json(value_counters, value_counts_file)
+    write_decision_log_to_csv(decision_log, decision_log_file)
 
 
 if __name__ == "__main__":
@@ -155,7 +178,8 @@ if __name__ == "__main__":
         filtering_config_file = snakemake.input["data_mapping_config"]
         filtered_datasets_file = snakemake.output["filtered_datasets"]
         decision_log_file = snakemake.output["decision_log"]
-        counters_file = snakemake.output["counters"]
+        key_usage_counts_file = snakemake.output["key_usage_counts"]
+        value_counts_file = snakemake.output["value_counts"]
 
     except NameError as e:
         import tempfile
@@ -170,6 +194,7 @@ if __name__ == "__main__":
         filtering_config_file = "config/dataset_filtering_config.json"
         filtered_datsets_file = "test/filtered_datasets.jsonl.gz"
         decision_log_file = "test/decision_log.csv"
-        counters_file = "test/key_counts.jsonl.gz"
+        key_usage_counts_file = "test/key_usage_counts.jsonl.gz"
+        value_counts_file = "test/value_counts.jsonl.gz"
 
     main()

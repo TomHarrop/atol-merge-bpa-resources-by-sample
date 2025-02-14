@@ -7,9 +7,9 @@ decision_log_file <- "results/decision_log.csv"
 
 decision_log <- fread(decision_log_file, na.strings = "None")
 kept_pd <- melt(
-  decision_log[keep_dataset == TRUE],
+  decision_log[dataset_accepted == TRUE],
   id.vars = "id",
-  measure.vars = c("organization_name", "data_context", "platform"),
+  measure.vars = c("bioplatforms_project_id", "data_context", "platform"),
   variable.name = "atol_key"
 )
 
