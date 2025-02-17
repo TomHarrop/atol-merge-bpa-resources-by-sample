@@ -74,7 +74,6 @@
             "pp-illumina-shortread",
             "pp-ont-promethion",
             "pp-pacbio-hifi",
-            "tsi-genome-assembly",
             "tsi-hi-c",
             "tsi-illumina-fastq",
             "tsi-illumina-shortread",

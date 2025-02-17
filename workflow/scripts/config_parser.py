@@ -26,24 +26,19 @@ class Config:
             yield attr, value
 
 
-class Mapping:
-    def __init__(self, output_value, accepted_values):
-        self.output_value = output_value
-        self.accepted_values = accepted_values
-
-
-class TermMapping:
+class TermMapping(dict):
 
     def __init__(self, config_file):
+        super().__init__()
         with open(config_file, "r") as file:
             config_data = json.loads(file.read())
-        for field_name, mapping in config_data.items():
-            setattr(
-                self,
-                field_name,
-                Mapping(mapping["output_value"], mapping["accepted_values"]),
-            )
 
-    def __iter__(self):
-        for attr, value in self.__dict__.items():
-            yield attr, value
+        for field_name, mapping in config_data.items():
+            self[field_name] = {}
+            for output_value, accepted_values in mapping.items():
+                for value in accepted_values:
+                    self[field_name][value] = output_value
+
+
+    def lookup(self, field_name, value):
+        return self[field_name][value]
