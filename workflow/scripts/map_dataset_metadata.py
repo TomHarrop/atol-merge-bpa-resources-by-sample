@@ -3,19 +3,37 @@
 from collections import Counter
 from config_parser import Config
 from metadata_parser import choose_value, get_nested_value
-from utils import setup_logging, read_json, write_json
+from utils import setup_logging, read_json, write_json, get_jsonlines_output_handle
 
 
-def pick_values_for_package(package, config):
+def pick_values_for_package(package, config, counters=None):
     section_metadata = {}
     for metadata_field, config_section in config:
+        # count them if we can
+        if counters is not None:
+            for field in config_section.field_names:
+                if get_nested_value(package, field) is not None:
+                    counters["field_present"][metadata_field].update([field])
+
         value, key, keep = choose_value(
             package, config_section.field_names, config_section.accepted_values
         )
         logger.debug(f"value: {value}, key: {key}, keep: {keep}")
         section_metadata[metadata_field] = value
 
+        if counters is not None:
+            counters["key_usage"][metadata_field].update([key])
+            counters["value_usage"][metadata_field].update([value])
+
     return section_metadata
+
+
+def get_counters(config):
+    return {
+        "field_present": {x: Counter() for x, y in config},
+        "key_usage": {x: Counter() for x, y in config},
+        "value_usage": {x: Counter() for x, y in config},
+    }
 
 
 def main():
@@ -23,11 +41,15 @@ def main():
     sample_config = Config(sample_mapping_config)
 
     # track key usage
-    key_usage_counters = {x: Counter() for x, y in organism_config}
-    parsed_key_counters = {x: Counter() for x, y in organism_config}
+    organism_counters = get_counters(organism_config)
+    sample_counters = get_counters(sample_config)
 
     # this is one big dict of id: package
+    logger.info(f"Parsing JSON file {json_file}")
     data = read_json(json_file)
+
+    logger.info(f"Writing modified metadata to {mapped_metadata_file}")
+    output_writer = get_jsonlines_output_handle(mapped_metadata_file)
 
     id_set = set()
 
@@ -48,28 +70,16 @@ def main():
 
         package_metadata = {
             "original_id": id,
-            "organism": pick_values_for_package(package, organism_config),
-            "sample": pick_values_for_package(package, sample_config),
+            "organism": pick_values_for_package(
+                package, organism_config, organism_counters
+            ),
+            "sample": pick_values_for_package(package, sample_config, sample_counters),
         }
 
-        print(package_metadata)
-        quit(1)
+        output_writer.write(package_metadata)
 
-        for metadata_field, config_section in organism_config:
-            logger.debug(f"Processing metadata field {metadata_field}")
-            for field in config_section.field_names:
-                if get_nested_value(package, field) is not None:
-                    key_usage_counters[metadata_field].update([field])
-
-            value, key, keep = choose_value(
-                package, config_section.field_names, config_section.accepted_values
-            )
-
-            logger.debug(f"value: {value}, key: {key}, keep: {keep}")
-            parsed_key_counters[metadata_field].update([key])
-
-    write_json(key_usage_counters, key_usage_counts_file)
-    write_json(parsed_key_counters, parsed_key_counts_file)
+    write_json(organism_counters, organism_counts_file)
+    write_json(sample_counters, sample_counts_file)
 
 
 if __name__ == "__main__":
@@ -113,18 +123,25 @@ if __name__ == "__main__":
             )
 
             output_group.add_argument(
-                "--key_usage_counts",
+                "--mapped_metadata",
                 type=str,
-                default="test/key_usage_counts.jsonl.gz",
+                default="test/mapped_metadata.jsonl.gz",
                 help="Path to the key usage counts file.",
-                dest="key_usage_counts_file",
+                dest="mapped_metadata_file",
             )
             output_group.add_argument(
-                "--parsed_key_counts",
+                "--organism_counts",
                 type=str,
-                default="test/parsed_key_counts.jsonl.gz",
+                default="test/organism_counts.jsonl.gz",
+                help="Path to the key usage counts file.",
+                dest="organism_counts_file",
+            )
+            output_group.add_argument(
+                "--sample_counts",
+                type=str,
+                default="test/sample_counts.jsonl.gz",
                 help="Path to the parsed key counts file.",
-                dest="parsed_key_counts_file",
+                dest="sample_counts_file",
             )
 
             options.add_argument(

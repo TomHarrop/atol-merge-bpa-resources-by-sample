@@ -1,0 +1,16 @@
+{
+    "data_context": {
+        "output_value": "genome_assembly",
+        "accepted_values": [
+            "Genome resequencing",
+            "Genomics",
+            "Pangenome",
+            "Reference genome (HiC)",
+            "Reference genome for Rhodomyrtus psidioides",
+            "reference genome",
+            "Reference genome",
+            "Reference Genome",
+            "Reference genomes"
+        ]
+    }
+}
