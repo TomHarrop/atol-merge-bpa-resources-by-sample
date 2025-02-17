@@ -7,6 +7,14 @@ import jsonlines
 import logging
 
 
+def get_jsonlines_output_handle(file):
+    """
+    Open a gzip file and return a jsonlines.Writer object.
+    """
+    f = gzip.open(file, "wb")
+    return jsonlines.Writer(f)
+
+
 def read_json(json_file):
     """
     Each line is a Package.
@@ -17,11 +25,12 @@ def read_json(json_file):
             yield line
 
 
-def setup_logging(logfile):
-
+def setup_logging(logfile, log_level="INFO"):
+    log_level = log_level.upper()
     file_handler = logging.FileHandler(logfile)
     logger.logfile_handler = file_handler
     logger.logger.addHandler(logger.logfile_handler)
+    logger.logger.setLevel(log_level)
     return logger
 
 

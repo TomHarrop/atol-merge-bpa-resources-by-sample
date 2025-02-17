@@ -1,0 +1,210 @@
+{
+    "voucher_id": {
+        "field_names": [
+            "voucher_number",
+            "voucher_herbarium_record_number",
+            "voucher_herbarium_catalog_number",
+            "voucher_or_tissue",
+            "voucher_or_tissue_number",
+            "voucher_id",
+            "specimen_id",
+            "accession_number_seed",
+            "living_collections_catalog_number",
+            "sample_id_description",
+            "sample_label"
+        ]
+    },
+    "voucher_institution": {
+        "field_names": [
+            "institution_name",
+            "museumid",
+            "specimen_id_description",
+            "herbarium_code",
+            "tissue_collection"
+        ]
+    },
+    "identified_by": {
+        "field_names": [
+            "identified_by",
+            "id_vetting_by"
+        ]
+    },
+    "taxon_remarks": {
+        "field_names": [
+            "scientific_name_notes",
+            "scientific_name_note",
+            "ancillary_notes"
+        ]
+    },
+    "lifestage": {
+        "field_names": [
+            "lifestage",
+            "plant_developmental_stage",
+            "life_stage",
+            "dev_stage"
+        ]
+    },
+    "sex": {
+        "field_names": [
+            "phenotypic_sex",
+            "sex",
+            "genotypic_sex"
+        ]
+    },
+    "organism_part": {
+        "field_names": [
+            "sample_type",
+            "tissue",
+            "tissue_type",
+            "dna_source"
+        ]
+    },
+    "host_scientific_name": {
+        "field_names": [
+            "host_scientific_name",
+            "original_source_host_species",
+            "specific_host"
+        ]
+    },
+    "collection_location": {
+        "field_names": [
+            "indigenous_location",
+            "location_text",
+            "state_or_region",
+            "location_id",
+            "state_or_territory",
+            "site",
+            "collection_location",
+            "geo_loc_name",
+            "country"
+        ]
+    },
+    "decimal_latitude": {
+        "field_names": [
+            "decimal_latitude_public",
+            "latitude",
+            "lat_lon",
+            "coord",
+            "spatial"
+        ]
+    },
+    "decimal_longitude": {
+        "field_names": [
+            "decimal_longitude_public",
+            "longitude",
+            "lat_lon",
+            "coord",
+            "spatial"
+        ]
+    },
+    "elevation": {
+        "field_names": [
+            "altitude",
+            "elev"
+        ]
+    },
+    "depth": {
+        "field_names": [
+            "depth"
+        ]
+    },
+    "habitat": {
+        "field_names": [
+            "env_local_scale",
+            "habitat"
+        ]
+    },
+    "description_of_collection_method": {
+        "field_names": [
+            "collection_method",
+            "samp_mat_process"
+        ]
+    },
+    "date_of_collection": {
+        "field_names": [
+            "collection_date",
+            "living_collections_event_date"
+        ]
+    },
+    "collected_by": {
+        "field_names": [
+            "collector",
+            "collected_by",
+            "collectors",
+            "voucher_herbarium_collector_id"
+        ]
+    },
+    "sample_name": {
+        "field_names": [
+            "bioplatforms_sample_id",
+            "sample_id",
+            "bpa_sample_id",
+            "bpa_sample_ids",
+            "resources.sample_id",
+            "resources.bioplatforms_sample_id"
+        ]
+    },
+    "specimen_id": {
+        "field_names": [
+            "specimen_id"
+        ]
+    },
+    "sample_submitter": {
+        "field_names": [
+            "sample_submitter",
+            "sample_submitter_name",
+            "sample_material_prepared_by"
+        ]
+    },
+    "sample_submission_date": {
+        "field_names": [
+            "sample_submission_date"
+        ]
+    },
+    "sequencing_facility": {
+        "field_names": [
+            "sequencing_facility",
+            "facility",
+            "library_location",
+            "resources.facility_id",
+            "resources.facility"
+        ]
+    },
+    "data_context": {
+        "field_names": [
+            "project_aim",
+            "data_context",
+            "ausarg_project",
+            "analysis_aim",
+            "genome_data"
+        ],
+        "accepted_values": [
+            "Genome resequencing",
+            "Genomics",
+            "Pangenome",
+            "Reference genome (HiC)",
+            "Reference genome for Rhodomyrtus psidioides",
+            "reference genome",
+            "Reference genome",
+            "Reference Genome",
+            "Reference genomes"
+        ]
+    },
+    "bioplatforms_project_id": {
+        "field_names": [
+            "organization.name"
+        ],
+        "accepted_values": [
+            "aus-avian",
+            "ausarg",
+            "bpa-omg",
+            "bpa-plants",
+            "bpa-wheat-pathogens-genomes",
+            "cipps",
+            "fungi",
+            "grasslands",
+            "plant-pathogen",
+            "threatened-species"
+        ]
+    }
+}
