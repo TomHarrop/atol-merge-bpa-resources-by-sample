@@ -1,0 +1,166 @@
+{
+    "sample": {
+        "field_names": [
+            "ncbi_biosample_accession",
+            "ncbi_biosample_accession_number"
+        ]
+    },
+    "study": {
+        "field_names": [
+            "ncbi_bioproject_accession",
+            "ncbi_bioproject_accession_number"
+        ]
+    },
+    "design_description": {
+        "field_names": [
+            "experimental_design"
+        ]
+    },
+    "library_name": {
+        "field_names": [
+            "bioplatforms_library_id",
+            "library_id",
+            "bpa_library_id",
+            "bpa_library_ids",
+            "resources.library_id",
+            "resources.bioplatforms_library_id"
+        ]
+    },
+    "library_strategy": {
+        "field_names": [
+            "library_strategy",
+            "library_type"
+        ]
+    },
+    "library_source": {
+        "field_names": [
+            "library_source",
+            "material_extraction_type",
+            "sample_material_preparation_type"
+        ]
+    },
+    "insert_size": {
+        "field_names": [
+            "insert_size_range"
+        ]
+    },
+    "library_construction_protocol": {
+        "field_names": [
+            "library_construction_protocol",
+            "library_prep_method",
+            "library_type"
+        ]
+    },
+    "library_selection": {
+        "field_names": [
+            "library_selection"
+        ]
+    },
+    "library_layout": {
+        "field_names": [
+            "library_layout"
+        ]
+    },
+    "instrument_model": {
+        "field_names": [
+            "sequencing_model",
+            "sequencer",
+            "sequencing_technology"
+        ]
+    },
+    "platform": {
+        "field_names": [
+            "Sequence",
+            "Data",
+            "Type",
+            "library_type",
+            "sequencing_platform",
+            "description",
+            "data_type",
+            "sequence_data_type",
+            "resources.resource_type",
+            "tags.display_name",
+            "tags.name",
+            "type"
+        ]
+    },
+    "material_extracted_by": {
+        "field_names": [
+            "material_extracted_by",
+            "dna_extracted_by",
+            "genomic_material_prepared_by"
+        ]
+    },
+    "material_extraction_date": {
+        "field_names": [
+            "material_extraction_date",
+            "dna_extraction_date"
+        ]
+    },
+    "library_prepared_by": {
+        "field_names": [
+            "library_prepared_by"
+        ]
+    },
+    "library_prepared_date": {
+        "field_names": [
+            "library_prep_date"
+        ]
+    },
+    "sequencing_kit": {
+        "field_names": [
+            "sequencing_kit_chemistry_version"
+        ]
+    },
+    "flowcell_type": {
+        "field_names": [
+            "flowcell_type"
+        ]
+    },
+    "dataset_name": {
+        "field_names": [
+            "bioplatforms_dataset_id",
+            "dataset_id",
+            "bpa_dataset_id",
+            "bpa_dataset_ids",
+            "resources.dataset_id"
+        ]
+    },
+    "package_id": {
+        "field_names": [
+            "resources.package_id"
+        ]
+    },
+    "resource_id": {
+        "field_names": [
+            "resources.id"
+        ]
+    },
+    "file_name": {
+        "field_names": [
+            "resources.name"
+        ]
+    },
+    "file_checksum": {
+        "field_names": [
+            "resources.md5"
+        ]
+    },
+    "file_format": {
+        "field_names": [
+            "file_type",
+            "resources.format"
+        ]
+    },
+    "file_submission_date": {
+        "field_names": [
+            "resources.created",
+            "date_submission"
+        ]
+    },
+    "bioplatforms_url": {
+        "field_names": [
+            "resources.url"
+        ]
+    }
+}

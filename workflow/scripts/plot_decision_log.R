@@ -30,7 +30,7 @@ gp1 <- ggplot(all_pd, aes(x = ordered_value)) +
   geom_histogram(stat = "count")
 
 ggsave(
-  "test/all_datasets",
+  "test/all_datasets.pdf",
   gp1,
   width = 16,
   height = 9,
